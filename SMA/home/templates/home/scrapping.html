@@ -1,0 +1,398 @@
+{% extends 'home/base.html' %} {% block content %} {% load static %}
+
+<script>
+    document.getElementById("scrap").style.backgroundColor = "#5C99C7";
+
+    function ShowHideTwitter(chkPassport) {
+        var dvPassport = document.getElementById("hashtagid");
+        var hastaginput = document.getElementById("hashtaginput");
+        hashtaginput.required = chkPassport.checked;
+
+        dvPassport.style.display = chkPassport.checked ? "block" : "none";
+
+    }
+
+    function ShowHideCompare(chkCompMode) {
+        var dvCompare = document.getElementById("div_compare_airport");
+        dvCompare.style.display = chkCompMode ? "block" : "none";
+
+    }
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js">
+</script>
+<script>
+    var nameApp = angular.module('nameApp', []);
+    nameApp.controller('NameCtrl', function ($scope) {
+        var danger_msg = document.getElementById("dang_msg");
+        $scope.airport_names = ['pune', 'kolkata', 'goa', 'chennai', 'hyderabad', 'cochin', 'mumbai', 'delhi'];
+        danger_msg.style.display=  "none";
+
+        $scope.names = [];
+
+        $scope.addName = function () {
+            if($scope.airport_names.indexOf($scope.enteredName.toLowerCase()) == -1){
+                Swal.fire("Error","Not a valid Airport name","error");
+                
+                return;
+                }
+            $scope.names.push($scope.enteredName);
+            $scope.enteredName = '';
+        };
+        $scope.Remove = function (name) {
+            var index = $scope.names.indexOf(name);
+            $scope.names.splice(index, 1);
+        }
+
+        $scope.Validate_airport_name = function(){
+            danger_msg.style.display=  "none";
+            if($scope.enteredName == "")
+                return;
+            if($scope.airport_names.indexOf($scope.enteredName.toLowerCase()) == -1){
+                danger_msg.style.display=  "block";
+
+            }
+        }
+    });
+</script>
+
+
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <center>
+            <h3 class="text-primary m-1 font-weight-bold">Scraping</h3>
+        </center>
+    </div>
+
+    {% if is_msg %}
+
+
+
+    {% if msg_type == "Success" %}
+    <script>
+        Swal.fire('Success', "{{ msg }}", 'success')
+    </script>
+    {% elif msg_type == "Failure" %}
+    <script>
+        Swal.fire('Error', "{{ msg }}", 'error')
+    </script>
+
+
+    {% endif %} {% endif %}
+
+
+
+
+
+    <div class="card-body">
+
+        <div class="card-body" style="width: 1150px;">
+
+
+
+
+
+            <form id="scraper" method="post" >
+                {% csrf_token %}
+
+                <span class="inputs" class="text-uppercase text-info font-weight-bold
+                    text-xs mb-1"><span></span>  Enter Folder Name</span>
+                </span>
+                <div class="row align-items-center no-gutters">
+                    <div class="col mr-2">
+                        <div class="input-group mb-3" style="width:
+                        1000px;">
+                            <div class="input-group-prepend"></div>
+                        </div><input type="text" name="path" style="width: 700px;margin-top: -16px;" required>
+                        <div class="text-uppercase text-info
+                        font-weight-bold text-xs mb-1" style="margin-top: 20px;"><span class="inputs"
+                                style="margin-top: -4px;">Enter No of
+                                scrolls</span></div>
+                        <div class="input-group mb-3" style="width:
+                        1000px;">
+                            <div class="input-group-prepend"></div><input type="text" name="scrolls" style="width:
+                            700px;" >
+                        </div>
+                    </div>
+                </div>
+
+
+                <span class="inputs" style="font-weight: 800;">Platforms to be Scraped:</span>
+                <table border="0px" cellpadding="5px" cellspacing="5px" style="left: 50%;">
+                    <tr>
+                        <td>
+
+                            <div class="custom-control custom-checkbox" style="margin-left: 50px;">
+
+                                <input class="custom-control-input" type="checkbox" name="facebook"
+                                    id="formCheck-Facebook">
+                                <label class="custom-control-label" for="formCheck-Facebook"></label>
+
+                            </div>
+                        </td>
+                        <td><label class="mylabel">Facebook</label></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+
+                            <div class="custom-control custom-checkbox" style="margin-left: 50px;"><input
+                                    class="custom-control-input" onclick="ShowHideTwitter(this)" type="checkbox"
+                                    name="twitter" id="formCheck-Twitter"><label class="custom-control-label"
+                                    for="formCheck-Twitter"></label>
+                            </div>
+                        </td>
+                        <td><label class="mylabel">Twitter</label></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="custom-control custom-checkbox" style="padding:
+                            0px;margin-left: 74px;"><input class="custom-control-input" type="checkbox"
+                                    name="tripadvisor" id="formCheck-TripAdvisor"><label class="custom-control-label"
+                                    for="formCheck-TripAdvisor"></label>
+                            </div>
+                        </td>
+                        <td><label class="mylabel">TripAdvisor</label></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="custom-control custom-checkbox" style="margin-left: 50px;"><input
+                                    class="custom-control-input" type="checkbox" name="googlemap"
+                                    id="formCheck-GoogleMap"><label class="custom-control-label"
+                                    for="formCheck-GoogleMap"></label></div>
+                        </td>
+                        <td><label class="mylabel">GoogleMap</label></td>
+                    </tr>
+                </table>
+
+
+
+                <div id="samp" style="display: none;">
+                    <div class="custom-control custom-checkbox" style="margin-left: 100px;"><input
+                            class="custom-control-input" type="checkbox" id="formCheck-1">
+                        <label class="custom-control-label" for="formCheck-1">Airport</label>
+                    </div>
+                    <div class="custom-control custom-checkbox" style="margin-left: 100px;"><input
+                            class="custom-control-input" type="checkbox" id="formCheck-2"><label
+                            class="custom-control-label" for="formCheck-2">Parking</label></div>
+                    <div class="custom-control custom-checkbox" style="margin-left: 100px;"><input
+                            class="custom-control-input" type="checkbox" id="formCheck-3"><label
+                            class="custom-control-label" for="formCheck-3">Washroom</label></div>
+                    <div class="custom-control custom-checkbox" style="padding:
+                    0px;margin-left: 124px;"><input class="custom-control-input" type="checkbox"
+                            id="formCheck-4"><label class="custom-control-label" for="formCheck-4">Restaurant</label>
+                    </div>
+                    <br />
+                </div>
+                <div class="row align-items-center no-gutters" id="hashtagid" style="display: none">
+                    <div class="col mr-2">
+                        <div class="text-uppercase text-primary
+                        font-weight-bold text-xs mb-1" style="width:
+                        1000px;"><span class="inputs">Enter Hashtag</span>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend"></div><input type="text" id="hashtaginput"
+                                    name="hashtag" style="width: 700px;height:
+                                29px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <table cellpadding="5px" cellspacing="10px" style="left: 50%;">
+                    <tr>
+
+                        <td>
+                            <span class="inputs">Airport Comparision</span>
+                        </td>
+
+                    </tr>
+                    <tr>
+
+                        <td>
+
+                            <div class="toggle">
+                                <input type="radio"
+                                    id="cond_used" name="bike_cond" onclick="ShowHideCompare(false);" checked="checked" ><label for="cond_used">Don't Compare</label>
+                                <input type="radio" id="cond_new" name="bike_cond"
+                                    onclick="ShowHideCompare(true);"><label for="cond_new">Compare</label>
+                                
+                                </div>
+
+
+                        </td>
+                    </tr>
+
+
+                </table>
+
+
+
+
+                <div ng-app="nameApp" ng-controller="NameCtrl" id="div_compare_airport" style="display: none;">
+
+                    <table cellpadding="5px" cellspacing="10px" style="left: 50%;">
+                        <tr>
+                            <td> <span class="inputs">Enter Airports for Comparision</span>
+
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td> <input type="text" style="width: 700px;" ng-model="enteredName" ng-keyup="Validate_airport_name()">
+                            </td>
+                            <td> <button class="btn btn-primary text-center mybutton" type="button"
+                                    style="margin-left: 50px;width: 100%;" ng-click="addName()">Add</button>
+                            </td>
+                        </tr>
+                        <tr><td colspan="2"> <span class="text-danger"  id="dang_msg">Not valid airport name</span></td></tr>
+                    </table>
+
+                    <br>
+
+
+
+
+                    <div class="container">
+                        <div class="container">
+                            <table cellpadding="5px" cellspacing="10px" style="left: 50%;width: 70%;">
+
+                                {% verbatim %}
+                                <tr ng-repeat="name in names">
+                                    <td style="width: 300px;">
+                                        <li style="color: black;font-size: 20px;font-weight: bold;">{{name}} 
+                                        <input type="text" style="display: none;" name=
+                                        "airport{{$index}}" value="{{name}}"/>
+                                        
+                                        </li>
+                                    </td>
+
+                                    <td  style="width: 300px;"><button class="btn btn-primary text-center mybutton"
+                                            style="width: 25%;height: 2%;font-size: 15px;background-color:  #ff4b3e;;"
+                                            ng-click="Remove(name)">Remove</button></td>
+                                </tr>
+                                {% endverbatim %}
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <br><br>
+
+
+                <button id="scraperbutton" class="btn btn-primary text-center mybutton" type="submit" style="width:
+                    400px;margin-top: 5.5rem;"  >Start Scraping</button>
+
+            </form>
+
+            <form action="{% url 'scrapping' %}" method="post">
+                {% csrf_token %}
+
+                <button class=" btn btn-primary text-center mybutton" type="submit" name="clear_results" style="width:
+            400px;margin-left: 40%;margin-top: -4.3rem;" >Clear Results</button>
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+<br><br>
+{% include "home/loading_animation.html" %} {% if is_result %}
+<br><br>
+<div class="shadow card" style="margin-top: 20px;"><a class="btn btn-link text-left card-header font-weight-bold"
+        data-toggle="collapse" aria-expanded="false" aria-controls="collapse-4" href="#collapse-4" role="button"
+        style="font-size: x-large;">Results</a>
+    <div class="collapse" id="collapse-4">
+        <div class="card-body">
+
+            <div class="container">
+                <br>
+                <table class="res_textbox" border="2px" cellpadding="5px" cellspacing="15px"
+                    style="width: 100%;color: black;">
+                    <tr>
+                        <td width="100%"> TotalNo of Reviews scrapped : {{total_reviews}} </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Scrolls :{{scrolls}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+
+                            Google Maps Reviews : {{ gmap_res_length }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+
+                            TripAdvisor Reviews : {{ trip_res_length }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+
+                            Facebook Reviews : {{ facebook_res_length }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+
+                            Twitter Reviews : {{ twitter_res_length }}
+                        </td>
+                    </tr>
+
+                </table>
+                <img src="data:image/png;base64,{{data}}" alt="Nothing" width="800px" style="margin-left: 100px;" />
+            </div>
+            <br>
+            
+            {% if other_airport_res|length > 0 %}
+                
+                
+<h1>Other airport results</h1>           
+<br>            <table class="res_textbox" border="2px" cellpadding="5px" cellspacing="15px"
+            style="width: 100%;color: black;">
+            {% for key, value in other_airport_res.items %} 
+            <tr>
+                <td width="100%"> {{key}} : {{value}} Reviews </td>
+            </tr>
+           
+            {% endfor %}
+            </table>
+
+
+            {% endif %}
+ 
+        </div>
+    </div>
+</div>
+{% endif %}
+<br>
+
+<br>
+<br>
+<script src="{% static 'home/assets/js/ScrappingPoster.js' %}"></script> <br> {% endblock %}

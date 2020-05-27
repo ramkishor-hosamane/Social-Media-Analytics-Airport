@@ -1,0 +1,85 @@
+{% extends 'home/base.html' %} {% block content %} {% load static %}
+
+<script>
+    document.getElementById("abt").style.backgroundColor = "#5C99C7";
+</script>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h3 class="text-primary m-0 font-weight-bold">About</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-justify m-0" style="font-size: 20px">The project is an authentic work of <span style="font-weight: 800;">Team NMIT</span> carried out for one of the esteemed online technical project contests, <span style="font-weight: 800;">Unisys Cloud 2020.</span><br>
+                <br>Project overview :<br> Airports are the gateway for a country to strengthen it's socio-economic ties with the rest of the world. Almost 3% of the country's GDP depends on the airlines industry.<br> A large section of the Indian population
+                uses air travel for their convenience to travel both domestically and internationally. This eventually results in a large volume of feedbacks received by the airport management. In order to keep track and analyse the public opinion
+                <span style="font-weight: 800;">an automated feedback analysis system for sentimental analysis</span> is required to improve the quality of the services in the airport. </p>
+        </div>
+    </div>
+
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h3 class="text-primary m-0 font-weight-bold">Mentors</h3>
+        </div>
+        <div class="card-body">
+            <ul class="text-justify m-0">
+                <li><span style="font-weight: 800;">Dr M N Thippeswamy</span>, HOD,CSE dept, NMIT</li>
+                <li><span style="font-weight: 800;">Mr Abhilash Chakkan</span>, Unisys</li>
+                <li><span style="font-weight: 800;">Ms Impana P</span>, Assistant Professor,NMIT</li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h3 class="text-primary m-0 font-weight-bold">Team Members</h3>
+        </div>
+        <div class="card-body">
+            <section id="team" class="bg-light-gray" style="padding-top: 37px;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="team-member">
+                                <ul class="list-inline social-buttons"></ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="team-member"><img class="rounded-circle img-fluid" src="{% static 'home/assets/img/dhanraj.jpeg' %}">
+                                <h4>Dhanraj&nbsp;</h4>
+                                <p class="text-muted">Team Leader</p>
+                                <ul class="list-inline social-buttons"></ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-4">
+                            <div class="team-member"><img class="rounded-circle img-fluid" src="{% static 'home/assets/img/pavan.jpg' %}">
+                                <h4>Pavan N</h4>
+                                <p class="text-muted"></p>
+                                <ul class="list-inline social-buttons"></ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="team-member"><img class="rounded-circle img-fluid" src="{% static 'home/assets/img/ramkishor.jpeg' %}">
+                                <h4>Ramkishor</h4>
+                                <ul class="list-inline social-buttons"></ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="team-member"><img class="rounded-circle img-fluid" src="{% static 'home/assets/img/sanjiv.jpeg' %}">
+                                <h4>Sanjiv MC</h4>
+                                <ul class="list-inline social-buttons"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="card shadow"></div>
+</div>
+
+
+
+{% endblock %}

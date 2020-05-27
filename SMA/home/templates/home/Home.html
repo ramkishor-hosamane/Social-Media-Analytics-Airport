@@ -1,0 +1,21 @@
+{% extends 'home/base.html' %} {% block content %} {% load static %}
+
+<script>
+    document.getElementById("home").style.backgroundColor = "#5C99C7";
+</script>
+
+<header class="masthead text-center text-white d-flex" style="background-image:url('{% static 'home/assets/img/header.png' %}');">
+    <div class="container my-auto" style="margin-top: -10px;margin-bottom: -10px;">
+        <div class="row" style="margin-top: 119px;height: 573px;">
+            <div class="col-xl-5" style="height: 544px;">
+                <h1 class="brand-heading" style="font-family: Acme;font-size: 50px;">An automated feedback analysis system for sentimental analysis with focus on improving the quality of services</h1><br>
+
+                <a class="btn btn-primary mybutton" style="width: 400px;text-align: center;font-weight: bold;font-size: 18px;" role="button" href="{% url 'scrapping' %}">Get Started     </a></div>
+
+
+        </div>
+    </div>
+</header>
+</div>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,
+            shrink-to-fit=no">
+    <title>Social Media Analytics</title>
+
+
+    {% include "home/_styles_scripts.html" %}
+
+
+
+
+
+
+
+    <style>
+        .custom-control-label::before,
+        .custom-control-label::after {
+            top: -0.1rem;
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        
+        label.mylabel {
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <div id="wrapper" style="min-height: 120vh;  position: relative;">
+
+        {% include "home/side_navbar.html" %}
+
+
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id=" content ">
+                <nav class="navbar navbar-light navbar-expand bg-gray-100 shadow mb-4 topbar static-top ">
+                    <div class="container-fluid "><button class="btn btn-link d-md-none rounded-circle mr-3 " id="sidebarToggleTop " type="button "><i
+                                    class="fas fa-bars "></i></button>
+                        <h1 style="color: #4e73df;font-weight: 700; ">Social Media Analytics</h1>
+
+                        <p style="font-weight: 800;font-size: 20px; ">Team NMIT
+                        </p>
+                    </div>
+                </nav>
+
+
+
+
+                {% block content %} {% endblock content%}
+
+
+
+                <footer class="bg-white sticky-footer " style="margin-top: 48px;position: absolute;bottom: 0;width: 86.5%;border: 1px solid gray;background-color: rgb(228, 0, 0); ">
+                    <div class="container my-auto " style="">
+                        <div class="text-center my-auto copyright " ><span style="margin-left: -1.6rem;">Copyright
+                                    © Team NMIT</span></div>
+                    </div>
+                </footer>
+            </div><a class="border rounded d-inline scroll-to-top " href="#page-top "><i class="fas fa-angle-up "></i></a></div>
+        <script src="{% static 'home/assets/bootstrap/js/bootstrap.min.js'%} "></script>
+        <script src="{% static 'home/assets/js/Filterable-Gallery-with-Lightbox.js' %} "></script>
+        <script src="{% static 'home/assets/js/Gallery.js' %} "></script>
+        <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.2/dist/jquery.fancybox.min.js "></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js "></script>
+        <script src="{% static 'home/assets/js/theme.js' %} "></script>
+
+
+</html>

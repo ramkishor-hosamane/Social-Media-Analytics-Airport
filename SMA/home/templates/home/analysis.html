@@ -1,0 +1,310 @@
+{% extends 'home/base.html' %} {% block content %} {% load static %}
+
+<script>
+    document.getElementById("analy").style.backgroundColor = "#5C99C7";
+    document.getElementById("results_container").style.minHeight ="210vh" ;
+
+</script>
+
+
+{% if is_msg %}
+{% if msg_type == "Success" %}
+<script>
+    Swal.fire('Success', "{{ msg }}" , 'success')
+
+</script>
+{% elif msg_type == "Failure" %}
+<script>
+    //Swal.fire('Error', "{{ msg }}" , 'error')
+    Swal.fire('hello world')
+</script>
+
+
+{% endif %} {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <center>
+            <h3 class="text-primary m-1 font-weight-bold">Analysis</h3>
+        </center>
+    </div>
+    <div class="card-body">
+
+        <div class="card-body" style="width: 1150px;">
+            <form id="analyse" method="POST">
+                {% csrf_token %}
+                <table cellpadding="5px" cellspacing="15px" style="width: 60%;">
+
+                    <tr>
+                        <td>
+                            <span class="inputs" class="text-uppercase text-info font-weight-bold
+                            text-xs mb-1"><span></span>Select Folder</span>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td> 
+                            
+                            <!-- <input id="pth" style="width: 63%;" name="path" type="text " required>-->
+                            <select id="pth" style="width: 63%;" name="path">
+                                {% for path in valid_paths %}
+                                  <option value="{{ path }}"> {{path}} </option>
+                                {% endfor %}                    
+                            </select>
+                            
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+
+                        </td>
+                    </tr>
+                </table>
+                <br>
+
+                <button class="btn btn-primary mybutton mybutton" id="btnsub" type="submit" style="width: 400px ">Analyse</button>
+
+            </form>
+
+            <form action="{% url 'analysis' %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-primary mybutton mybutton" type="Scraping " name="clear_results" style="width: 400px ;margin-left: 55%;margin-top: -4.0rem;">Clear Results</button>
+
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+{% include "home/loading_animation.html" %} {% if is_result and pos_reviews.all %}
+
+
+
+<div id="results_container">
+
+<div class="shadow card" style="margin-top: 20px;"><a class="btn btn-link text-left card-header font-weight-bold" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-2" href="#collapse-2" role="button" style="font-size: x-large;margin-top: 0px;">Sentimental Analysis</a>
+    <div class="collapse" id="collapse-2">
+        <div class="card-body">
+
+
+            <div class="text-uppercase text-info font-weight-bold text-xs mb-1" style="margin-top: 40px;"><span style="font-size: 20px;margin-top: 0px;margin-bottom: 0px;">POSITIVE Reviews &nbsp <img src="{% static 'home/assets/img/Happy.png' %} " width="40px" height="40px"/></span></div>
+
+
+
+
+
+            <br>
+            <div style="width: 1300px;height: 300px;margin-top: -4px;border-style: double;border-width: thick;overflow: auto;border-color:#00704b;">
+                {% for pos_rev in pos_reviews %}
+                <p class="res_textbox">- {{pos_rev}}</p>
+                <br> {% endfor %}
+
+            </div>
+            <!-------->
+
+            <br>
+
+
+
+            <div class="text-uppercase text-info font-weight-bold text-xs mb-1" style="font-size: 20px;"><span>NEGATIVE REVIEWS   &nbsp <img src="{% static 'home/assets/img/Sad2.png' %} " width="40px" height="40px"/></span></div>
+
+            <br>
+            <div style="width: 1300px;height: 300px;margin-top: -4px;border-style: double;border-width: thick;overflow: auto;border-color: #f06630;">
+                {% for neg_rev in neg_reviews %} 
+                <p class="res_textbox"> - {{neg_rev}}</p>
+                <br> {% endfor %}
+
+            </div>
+            <!-------->
+
+            <br>
+
+            <a href=" {% static 'home/Outputs/pos_neg_reviews.xlsx' %}" download>
+           <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_pos_neg_result">Report</button></center></a>
+
+
+        </div>
+    </div>
+</div>
+<!----sentimental analysis dropdown end--------->
+
+
+
+<!------topic wise categorization dropdown start--------->
+<div class="shadow card" style="margin: 0px;margin-top: 20px;"><a class="btn btn-link text-left card-header font-weight-bold" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-3" href="#collapse-3" role="button" style="font-size: x-large;margin-top: 0px;">Topic Wise Categorization</a>
+    <div class="collapse" id="collapse-3">
+        <div class="card-body">
+
+            {% if is_result %}
+
+            <div class="text-uppercase text-info font-weight-bold text-xs mb-1" style="font-size: 20px;"><span>Food<img src="{% static 'home/assets/img/fork.png' %} " width="30px" height="30px"/>  &nbsp Shopping<img src="{% static 'home/assets/img/shop_bag.png' %} " width="30px" height="30px"/></span>   
+            </div>
+            <!-------food/shopping text box----->
+
+
+            <br>
+            <div style="width: 1300px;height: 200px;margin-top: -4px;border-style: double;border-width: thick;overflow: auto;border-color: black;">
+                {% for key, value in topic_wise.items %} {% if key == 'Food/Shopping' %} {% for comm in value %}
+                <p class="res_textbox">- {{ comm }}</p> <br> {% endfor %} {% endif %} {% endfor %}
+            </div>
+            <!-------->
+
+            <br>
+
+            <div class="text-uppercase text-info font-weight-bold text-xs mb-1" style="font-size: 20px;"><span>Infrastructures <img src="{% static 'home/assets/img/building.png' %} " width="30px" height="30px"/></span>
+            </div>
+            <!-------food/shopping text box----->
+
+
+            <br>
+            <div style="width: 1300px;height: 200px;margin-top: -4px;border-style: double;border-width: thick;overflow: auto;border-color: black;">
+                {% for key, value in topic_wise.items %} {% if key == 'Infrastructures' %} {% for comm in value %}
+                <p class="res_textbox">- {{ comm }} </p><br> {% endfor %} {% endif %} {% endfor %}
+            </div>
+            <!--------->
+            <br>
+
+            <div class="text-uppercase text-info font-weight-bold text-xs mb-1" style="font-size: 20px;"><span>Maintenance/Clean  <img src="{% static 'home/assets/img/bucketbroom.png' %} " width="30px" height="30px"/></span>
+            </div>
+            <!-------food/shopping text box----->
+
+
+            <br>
+            <div style="width: 1300px;height: 200px;margin-top: -4px;border-style: double;border-width: thick;overflow: auto;border-color: black;">
+                {% for key, value in topic_wise.items %} {% if key == 'Maintenance/Clean' %} {% for comm in value %}
+                <p class="res_textbox">- {{ comm }} </p><br> {% endfor %} {% endif %} {% endfor %}
+            </div>
+
+            <br>
+
+            <div class="text-uppercase text-info font-weight-bold text-xs mb-1" style="font-size: 20px;"><span>Security/Staff  <img src="{% static 'home/assets/img/staff.png' %} " width="30px" height="30px"/></span>
+            </div>
+            <!-------food/shopping text box----->
+
+
+            <br>
+            <div style="width: 1300px;height: 200px;margin-top: -4px;border-style: double;border-width: thick;overflow: auto;border-color: black;">
+                {% for key, value in topic_wise.items %} {% if key == 'Security/Staff' %} {% for comm in value %}
+                <p class="res_textbox"> - {{ comm }}</p> <br><br> {% endfor %} {% endif %} {% endfor %}
+            </div>
+            <br>
+
+            <a href=" {% static 'home/Outputs/topic_reviews.xlsx' %}" download>
+
+           <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_topic_result">Report</button></center></a>
+                
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+
+<!---------- topic wise categorization drop down end----------->
+
+
+
+
+
+
+
+<div class="shadow card" style="margin-top: 20px;"><a class="btn btn-link text-left card-header font-weight-bold" data-toggle="collapse" aria-expanded="false" aria-controls="collapse-4" href="#collapse-4" role="button" style="font-size: x-large;">Visualization</a>
+    <div class="collapse" id="collapse-4">
+        <div class="card-body">
+            {% if is_result %}
+            <br>
+            <br>
+
+
+
+
+
+            <center><h2 class="plot_title">Word Cloud</h2></center>
+            <img style="margin-left:230px; " src="data:image/png;base64,{{word_cloud}}" width="800px" />
+            <hr style="font-weight: bold;background-color: gray; ">
+
+            <center><h2 class="plot_title">Star Rating</h2></center>
+
+            <img style="margin-left:220px; " src="data:image/png;base64,{{star_rating}}" width="800px" />
+            <hr style="font-weight: bold;background-color: gray; ">
+            
+            <center><h2 class="plot_title">Binary categorized reviews</h2></center>
+
+            <img style="margin-left:230px; " src="data:image/png;base64,{{pie_pos_neg}}" width="800px" />
+            <hr style="font-weight: bold;background-color: gray; ">
+            
+            <center><h2 class="plot_title">Topic-wise categorized reviews </h2></center>
+
+            <img style="margin-left:220px; " src="data:image/png;base64,{{pie_topic}}" width="800px" />
+            <hr style="font-weight: bold;background-color: gray; ">
+            
+            <center><h2 class="plot_title">Positive and negative count in each category</h2></center>
+
+            <img style="margin-left:220px; " src="data:image/png;base64,{{bar_categarized_topic_pos_neg}}" alt="Nothing" width="800px" />
+
+
+
+            
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<div class="shadow card" style="margin-top: 20px;"><a class="btn btn-link text-left card-header font-weight-bold" data-toggle="collapse" aria-expanded="true" aria-controls="collapse-5" href="#collapse-5" role="button" style="font-size: x-large;">Comparision of Airports and Food outlets</a>
+    <div class="collapse" id="collapse-5">
+        <div class="card-body">
+{% for key,value in other_airport_comparison_plots.items %}
+
+<center><h2 class="plot_title">Bangalore Vs {{ key|capfirst }}</h2></center>
+<img style="margin-left:166px; width: 800px"  src="data:image/png;base64,{{value}}" alt="Nothing" width="1000px" />
+<hr style="font-weight: bold;background-color: gray; ">
+<br>
+  
+{% endfor %}
+
+<center><h2 class="plot_title">Reviews of food outlets</h2></center>
+<center><h2 class="plot_title">Count of Positive and Negative comments based on Shops</h2></center>
+<img style="margin-left:255px; " src = "data:image/png;base64,{{food_shop_outlets}}"  width="800px "/>
+
+
+            </div>
+            </div>
+</div>
+
+
+
+<br>
+<a href=" {% static 'home/Outputs/'|add:path|add:'.zip' %}" download>
+    <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_topic_result">Download Results</button></center></a>
+    <br>
+{% endif %}
+
+
+</div>
+<br><br>
+<br><br>
+
+</div>
+
+
+
+<script src="{% static 'home/assets/js/AnalysisPoster.js' %}"></script>
+
+{% endblock %}
