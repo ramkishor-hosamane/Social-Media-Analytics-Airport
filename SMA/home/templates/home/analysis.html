@@ -236,27 +236,27 @@
 
 
             <center><h2 class="plot_title">Word Cloud</h2></center>
-            <img style="margin-left:230px; " src="data:image/png;base64,{{word_cloud}}" width="800px" />
+            <img style="margin-left:230px;" class="inline-card show-on-scroll" src="data:image/png;base64,{{word_cloud}}" width="800px" />
             <hr style="font-weight: bold;background-color: gray; ">
 
             <center><h2 class="plot_title">Star Rating</h2></center>
 
-            <img style="margin-left:220px; " src="data:image/png;base64,{{star_rating}}" width="800px" />
+            <img style="margin-left:220px; " class="inline-card show-on-scroll" src="data:image/png;base64,{{star_rating}}" width="800px" />
             <hr style="font-weight: bold;background-color: gray; ">
             
             <center><h2 class="plot_title">Binary categorized reviews</h2></center>
 
-            <img style="margin-left:230px; " src="data:image/png;base64,{{pie_pos_neg}}" width="800px" />
+            <img style="margin-left:230px; " class="inline-card show-on-scroll" src="data:image/png;base64,{{pie_pos_neg}}" width="800px" />
             <hr style="font-weight: bold;background-color: gray; ">
             
             <center><h2 class="plot_title">Topic-wise categorized reviews </h2></center>
 
-            <img style="margin-left:220px; " src="data:image/png;base64,{{pie_topic}}" width="800px" />
+            <img style="margin-left:220px; " class="inline-card show-on-scroll" src="data:image/png;base64,{{pie_topic}}" width="800px" />
             <hr style="font-weight: bold;background-color: gray; ">
             
             <center><h2 class="plot_title">Positive and negative count in each category</h2></center>
 
-            <img style="margin-left:220px; " src="data:image/png;base64,{{bar_categarized_topic_pos_neg}}" alt="Nothing" width="800px" />
+            <img style="margin-left:220px; " class="inline-card show-on-scroll" src="data:image/png;base64,{{bar_categarized_topic_pos_neg}}" alt="Nothing" width="800px" />
 
 
 
@@ -273,7 +273,7 @@
 {% for key,value in other_airport_comparison_plots.items %}
 
 <center><h2 class="plot_title">Bangalore Vs {{ key|capfirst }}</h2></center>
-<img style="margin-left:166px; width: 800px"  src="data:image/png;base64,{{value}}" alt="Nothing" width="1000px" />
+<img style="margin-left:166px; width: 800px" class="inline-card show-on-scroll" src="data:image/png;base64,{{value}}" alt="Nothing" width="1000px" />
 <hr style="font-weight: bold;background-color: gray; ">
 <br>
   
@@ -281,7 +281,7 @@
 
 <center><h2 class="plot_title">Reviews of food outlets</h2></center>
 <center><h2 class="plot_title">Count of Positive and Negative comments based on Shops</h2></center>
-<img style="margin-left:255px; " src = "data:image/png;base64,{{food_shop_outlets}}"  width="800px "/>
+<img style="margin-left:255px; "  class="inline-card show-on-scroll" src = "data:image/png;base64,{{food_shop_outlets}}"  width="800px "/>
 
 
             </div>
@@ -306,5 +306,6 @@
 
 
 <script src="{% static 'home/assets/js/AnalysisPoster.js' %}"></script>
+<script src="{% static 'home/assets/js/Animations.js' %}"></script>
 
 {% endblock %}

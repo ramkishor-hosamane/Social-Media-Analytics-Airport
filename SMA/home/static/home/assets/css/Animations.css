@@ -1,0 +1,56 @@
+
+/* photo to which animation is to be applied */
+.inline-photo {
+    border: 1em solid #fff;
+    border-bottom: 4em solid #fff;
+    border-radius: .25em;
+    box-shadow: 1em 1em 2em .25em rgba(0,0,0,.2);
+    margin: 2em auto;
+    opacity: 0;
+    transform: translateY(4em) rotateZ(1deg);
+    transition: transform 4s .25s cubic-bezier(0,1,.3,1),
+                    opacity .3s .25s ease-out;
+
+    will-change: transform,opacity;
+  }
+  
+  
+  /* When photo is visible 
+      max-width: 600px;
+    width: 90%;
+  */
+  
+  .inline-photo.is-visible
+  {
+      opacity: 1;
+      transform: rotateZ(-1deg);
+  }
+  
+  
+  /* Card to which animation is to be applied */
+.inline-card {
+    border: 1em solid #fff;
+    border-bottom: 4em solid #fff;
+    border-radius: .25em;
+    box-shadow: 1em 1em 2em .25em rgba(0,0,0,.2);
+    opacity: 0;
+    transform: translateY(4em);
+    transition: transform 4s .25s cubic-bezier(0,1,.3,1),
+                    opacity .3s .25s ease-out;
+
+    will-change: transform,opacity;
+  }
+  
+  
+  /* When photo is visible 
+      max-width: 600px;
+    width: 90%;
+  */
+  
+  .inline-card.is-visible
+  {
+      opacity: 1;
+      transform: translateY(-0.14em);
+  }
+  
+  
