@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
-from .Modules import scarpers
 from .Modules import visualizer
 import os
 import pandas as pd
@@ -47,6 +46,8 @@ def scrapping(request):
     global scrapping_results_context
     import threading
     from multiprocessing import Queue
+    from .Modules import scarpers
+
     def scrape_reviews(path,scrolls,facebook_check,googlemap_check,tripadvisor_check,twitter_check,hashtag):
 
         result = {"Google Maps":0,"Facebook":0,"TripAdvisor":0,"Twitter":0}

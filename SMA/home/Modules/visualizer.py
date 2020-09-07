@@ -6,6 +6,7 @@ import urllib
 def word_cloud(df,path):
     from nltk.corpus import stopwords
     from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+    #return     
     from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
 
     count_vectorizer = CountVectorizer(ngram_range=(1, 2),  
