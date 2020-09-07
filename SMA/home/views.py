@@ -2,14 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from .Modules import scarpers
 from .Modules import visualizer
-from .Modules import analyser
-from .Modules import preprocesser
-from .Modules import shop_links
-from .Modules import airport_links
-import threading
-from multiprocessing import Queue
-import os,shutil
+import os
 import pandas as pd
+
 scrapping_results_context = {'path':'',"scrolls":'',
                                 'is_result':False,
 
@@ -41,119 +36,131 @@ analysis_results_context = {
 
             }
 def index(request):
+    from .Modules import airport_links
+
     print([link for link in airport_links.links])
 
     return render(request,'home/Home.html')
 
 
-def scrape_reviews(path,scrolls,facebook_check,googlemap_check,tripadvisor_check,twitter_check,hashtag):
-
-    result = {"Google Maps":0,"Facebook":0,"TripAdvisor":0,"Twitter":0}
-    
-    que = Queue()
-    thread_list = []
-    if googlemap_check:
-        thread_list.append(threading.Thread(target=lambda q, arg1,arg2: q.put(scarpers.GmapScrap(arg1,arg2)),args=(que,path,scrolls,)))
-    if facebook_check:
-        thread_list.append(threading.Thread(target=lambda q, arg1,arg2: q.put(scarpers.facebookScrap(arg1,arg2)),args=(que,path,scrolls,)))
-    if tripadvisor_check:
-        thread_list.append(threading.Thread(target=lambda q, arg1,arg2: q.put(scarpers.tripAdvisorScrap(arg1,arg2)),args=(que,path,scrolls,)))
-    if twitter_check:
-        thread_list.append(threading.Thread(target=lambda q, arg1,arg2,arg3: q.put(scarpers.twitterScrap(arg1,arg2,arg3)),args=(que,path,scrolls,hashtag,)))        
-    for t in thread_list:
-        t.daemon = True
-        t.start()
-    for t in thread_list:
-        t.join()
-    
-    while not que.empty():
-        res = que.get()
-        result[res[0]] = res[1]
-    
-    for pltfrm in result:
-            if pltfrm=="Google Maps":
-                try:
-                    result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/gmap_reviews.csv'))
-                except Exception as e:
-                    print(e) 
-                    result[pltfrm]=0
-            elif pltfrm=="Facebook":
-                try:
-                    result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/facebook_reviews.csv')
-)
-                except Exception as e:
-                    print(e)
-                    result[pltfrm]=0
-            elif pltfrm=="TripAdvisor":
-                try:
-                    result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/tripadvisor_reviews.csv'))
-                except Exception as e:
-                    print(e)
-                    result[pltfrm]=0
-            elif pltfrm=="Twitter":
-                try:
-                    result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/twitterdata.csv'))
-                except Exception as e:
-                    print(e)
-                    result[pltfrm]=0
-                                                                
-                
-    
-    return result
-
-
-def scrape_food_shop_reviews(path,scrolls):
-
-    
-    que = Queue()
-    thread_list = []
-    for shop in shop_links.links:
-        thread_list.append(threading.Thread(target=lambda q, arg1,arg2,arg3,arg4: q.put(scarpers.GmapScrap(arg1,arg2,arg3,arg4)),args=(que,path,scrolls,'food.'+shop,shop_links.links[shop],)))        
-
-    for t in range(2):
-        thread_list[t].daemon = True
-        thread_list[t].start()
-    for t in range(2):
-        thread_list[t].join()
-    for t in range(2,4):
-        thread_list[t].daemon = True
-        thread_list[t].start()
-    for t in range(2,4):
-        thread_list[t].join()
-
-
-
-def scrape_other_reviews(other_airports,path,scrolls):
-    result = {}
-    que = Queue()
-    thread_list = []
-    for airport_name in other_airports:
-        airport_link = airport_links.links.get(airport_name.strip().lower(),None)
-        thread_list.append(threading.Thread(target=lambda q, arg1,arg2,arg3,arg4: q.put(scarpers.GmapScrap(arg1,arg2,arg3,arg4)),args=(que,path,scrolls,airport_name,airport_link,)))        
-        
-    for t in thread_list:
-        t.daemon = True
-        t.start()
-    for t in thread_list:
-        t.join()
-            
-    while not que.empty():
-        res = que.get()
-        result[res[2]] = res[1]        
-
-    for airport_name in result:
-        try:
-            result[airport_name] = len(pd.read_csv(path+'/Scrapped Reviews/OtherAirports/'+airport_name+'.csv'))
-            print(airport_name,'-->',result[airport_name])
-        except Exception as e:
-            print(e) 
-            #result[airport_name]=0
-
-    return result    
 def scrapping(request):
-
     global scrapping_results_context
-    
+    import threading
+    from multiprocessing import Queue
+    def scrape_reviews(path,scrolls,facebook_check,googlemap_check,tripadvisor_check,twitter_check,hashtag):
+
+        result = {"Google Maps":0,"Facebook":0,"TripAdvisor":0,"Twitter":0}
+        
+        que = Queue()
+        thread_list = []
+        if googlemap_check:
+            thread_list.append(threading.Thread(target=lambda q, arg1,arg2: q.put(scarpers.GmapScrap(arg1,arg2)),args=(que,path,scrolls,)))
+        if facebook_check:
+            thread_list.append(threading.Thread(target=lambda q, arg1,arg2: q.put(scarpers.facebookScrap(arg1,arg2)),args=(que,path,scrolls,)))
+        if tripadvisor_check:
+            thread_list.append(threading.Thread(target=lambda q, arg1,arg2: q.put(scarpers.tripAdvisorScrap(arg1,arg2)),args=(que,path,scrolls,)))
+        if twitter_check:
+            thread_list.append(threading.Thread(target=lambda q, arg1,arg2,arg3: q.put(scarpers.twitterScrap(arg1,arg2,arg3)),args=(que,path,scrolls,hashtag,)))        
+        for t in thread_list:
+            t.daemon = True
+            t.start()
+        for t in thread_list:
+            t.join()
+        
+        while not que.empty():
+            res = que.get()
+            result[res[0]] = res[1]
+        
+        for pltfrm in result:
+                if pltfrm=="Google Maps":
+                    try:
+                        result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/gmap_reviews.csv'))
+                    except Exception as e:
+                        print(e) 
+                        result[pltfrm]=0
+                elif pltfrm=="Facebook":
+                    try:
+                        result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/facebook_reviews.csv')
+    )
+                    except Exception as e:
+                        print(e)
+                        result[pltfrm]=0
+                elif pltfrm=="TripAdvisor":
+                    try:
+                        result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/tripadvisor_reviews.csv'))
+                    except Exception as e:
+                        print(e)
+                        result[pltfrm]=0
+                elif pltfrm=="Twitter":
+                    try:
+                        result[pltfrm] = len(pd.read_csv(path+'/Scrapped Reviews/twitterdata.csv'))
+                    except Exception as e:
+                        print(e)
+                        result[pltfrm]=0
+                                                                    
+                    
+        
+        return result
+
+
+    def scrape_food_shop_reviews(path,scrolls):
+        from .Modules import shop_links
+
+        
+        que = Queue()
+        thread_list = []
+        for shop in shop_links.links:
+            thread_list.append(threading.Thread(target=lambda q, arg1,arg2,arg3,arg4: q.put(scarpers.GmapScrap(arg1,arg2,arg3,arg4)),args=(que,path,scrolls,'food.'+shop,shop_links.links[shop],)))        
+
+        for t in range(2):
+            thread_list[t].daemon = True
+            thread_list[t].start()
+        for t in range(2):
+            thread_list[t].join()
+        for t in range(2,4):
+            thread_list[t].daemon = True
+            thread_list[t].start()
+        for t in range(2,4):
+            thread_list[t].join()
+
+
+
+    def scrape_other_reviews(other_airports,path,scrolls):
+        result = {}
+        que = Queue()
+        thread_list = []
+        for airport_name in other_airports:
+            airport_link = airport_links.links.get(airport_name.strip().lower(),None)
+            thread_list.append(threading.Thread(target=lambda q, arg1,arg2,arg3,arg4: q.put(scarpers.GmapScrap(arg1,arg2,arg3,arg4)),args=(que,path,scrolls,airport_name,airport_link,)))        
+            
+        for t in thread_list:
+            t.daemon = True
+            t.start()
+        for t in thread_list:
+            t.join()
+                
+        while not que.empty():
+            res = que.get()
+            result[res[2]] = res[1]        
+
+        for airport_name in result:
+            try:
+                result[airport_name] = len(pd.read_csv(path+'/Scrapped Reviews/OtherAirports/'+airport_name+'.csv'))
+                print(airport_name,'-->',result[airport_name])
+            except Exception as e:
+                print(e) 
+                #result[airport_name]=0
+
+        return result    
+
+
+
+
+
+
+
+
+
     if "clear_results" in request.POST:
         scrapping_results_context = {
                     'is_result':False,
@@ -236,60 +243,65 @@ def scrapping(request):
         scrapping_results_context['is_msg'] = False
         return render(request,'home/scrapping.html',scrapping_results_context)
 
-def get_other_airport_comparison_plots(path,catogarized_final_res):
-    other_airport_comparison_plots = {}
-    blr_pos = [len(catogarized_final_res[topic]['pos']) for topic in catogarized_final_res]
-    blr_neg = [len(catogarized_final_res[topic]['neg']) for topic in catogarized_final_res]
-
-    for file in os.listdir(path+"/Scrapped Reviews/OtherAirports/"):
-        other_airport_name = file.split('.')[0]
-        other_df = pd.read_csv(path+"/Scrapped Reviews/OtherAirports/"+file)
-        #other_df = other_df[other_df['Time']=="a year ago"]
-        other_df = preprocesser.preprocess(other_df)
-        other_final_res = analyser.get_catogarized_review(other_df)
-        other_catogarized_final_res = analyser.get_catogarized_topic_sentiment_review(other_final_res)
-        other_pos = [len(other_catogarized_final_res[topic]['pos']) for topic in other_catogarized_final_res]
-        other_neg = [len(other_catogarized_final_res[topic]['neg']) for topic in other_catogarized_final_res]
-        other_airport_comparison_plots[other_airport_name] = visualizer.plot_comparision(path,blr_pos,blr_neg,other_pos,other_neg,"Bangalore",other_airport_name)
-    
-    return other_airport_comparison_plots
-
-def get_food_shop_outlet_plot(path):
-    res = ""
-    try:
-        sub_df = pd.read_csv(path+"/Scrapped Reviews/subway.csv")
-        sub_df = preprocesser.preprocess(sub_df)
-        sub_df["Sentiment"] = analyser.get_Sentiment(sub_df)
-
-        ccd_df = pd.read_csv(path+"/Scrapped Reviews/cafe coffee day.csv")
-        ccd_df = preprocesser.preprocess(ccd_df)
-        ccd_df["Sentiment"] = analyser.get_Sentiment(ccd_df)
-
-        tif_df = pd.read_csv(path+"/Scrapped Reviews/tiffin center.csv")
-        tif_df = preprocesser.preprocess(tif_df)
-        tif_df["Sentiment"] = analyser.get_Sentiment(tif_df)
-
-        urb_df = pd.read_csv(path+"/Scrapped Reviews/urban.csv")
-        urb_df = preprocesser.preprocess(urb_df)
-        urb_df["Sentiment"] = analyser.get_Sentiment(urb_df)
-        res = visualizer.plot_shops(path,sub_df,ccd_df,tif_df,urb_df)
-
-
-    except Exception as e:
-        print("Exception ",e)
-        pass
-    return res
-def get_topic_res(final_res):
-    topic_wise = {topic:[] for topic in final_res}
-    url_wise = {topic:[] for topic in final_res}
-    for topic in final_res:
-        for rev in final_res[topic]:
-            topic_wise[topic].append(rev[2])
-            url_wise[topic].append(rev[1])
-
-    return topic_wise,url_wise
 def analysis(request):
     global analysis_results_context
+    from .Modules import analyser
+    from .Modules import preprocesser
+    import shutil
+    def get_other_airport_comparison_plots(path,catogarized_final_res):
+        other_airport_comparison_plots = {}
+        blr_pos = [len(catogarized_final_res[topic]['pos']) for topic in catogarized_final_res]
+        blr_neg = [len(catogarized_final_res[topic]['neg']) for topic in catogarized_final_res]
+
+        for file in os.listdir(path+"/Scrapped Reviews/OtherAirports/"):
+            other_airport_name = file.split('.')[0]
+            other_df = pd.read_csv(path+"/Scrapped Reviews/OtherAirports/"+file)
+            #other_df = other_df[other_df['Time']=="a year ago"]
+            other_df = preprocesser.preprocess(other_df)
+            other_final_res = analyser.get_catogarized_review(other_df)
+            other_catogarized_final_res = analyser.get_catogarized_topic_sentiment_review(other_final_res)
+            other_pos = [len(other_catogarized_final_res[topic]['pos']) for topic in other_catogarized_final_res]
+            other_neg = [len(other_catogarized_final_res[topic]['neg']) for topic in other_catogarized_final_res]
+            other_airport_comparison_plots[other_airport_name] = visualizer.plot_comparision(path,blr_pos,blr_neg,other_pos,other_neg,"Bangalore",other_airport_name)
+        
+        return other_airport_comparison_plots
+
+    def get_food_shop_outlet_plot(path):
+        res = ""
+        try:
+            sub_df = pd.read_csv(path+"/Scrapped Reviews/subway.csv")
+            sub_df = preprocesser.preprocess(sub_df)
+            sub_df["Sentiment"] = analyser.get_Sentiment(sub_df)
+
+            ccd_df = pd.read_csv(path+"/Scrapped Reviews/cafe coffee day.csv")
+            ccd_df = preprocesser.preprocess(ccd_df)
+            ccd_df["Sentiment"] = analyser.get_Sentiment(ccd_df)
+
+            tif_df = pd.read_csv(path+"/Scrapped Reviews/tiffin center.csv")
+            tif_df = preprocesser.preprocess(tif_df)
+            tif_df["Sentiment"] = analyser.get_Sentiment(tif_df)
+
+            urb_df = pd.read_csv(path+"/Scrapped Reviews/urban.csv")
+            urb_df = preprocesser.preprocess(urb_df)
+            urb_df["Sentiment"] = analyser.get_Sentiment(urb_df)
+            res = visualizer.plot_shops(path,sub_df,ccd_df,tif_df,urb_df)
+
+
+        except Exception as e:
+            print("Exception ",e)
+            pass
+        return res
+    def get_topic_res(final_res):
+        topic_wise = {topic:[] for topic in final_res}
+        url_wise = {topic:[] for topic in final_res}
+        for topic in final_res:
+            for rev in final_res[topic]:
+                topic_wise[topic].append(rev[2])
+                url_wise[topic].append(rev[1])
+
+        return topic_wise,url_wise
+
+
 
     #if request.is_ajax():
         #print("jesson",request.POST)

@@ -1,21 +1,23 @@
 import time
 import io
-import pandas as pd
-import numpy as np
 import spacy
 nlp = spacy.load('en_core_web_md')
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from spacy.lang.en.stop_words import STOP_WORDS
-import nltk
 from . import preprocesser
-import pickle
-
-from spacy.matcher import Matcher
+from pickle import load
 
 
-text_clf_lsvc = pickle.load(open('Data_tools/model.sav', 'rb'))
+text_clf_lsvc = load(open('Data_tools/model.sav', 'rb'))
 
-patterns = {
+
+
+length = len
+Tuple  = tuple
+List = list
+def get_catogarized_review(df):
+    from spacy.matcher import Matcher
+
+
+    patterns = {
             'Food/Shopping':[
                              [{'LOWER':'food'}],
                              [{'LOWER':'restaurants'}],
@@ -100,11 +102,6 @@ patterns = {
                             ]
             }
 
-
-length = len
-Tuple  = tuple
-List = list
-def get_catogarized_review(df):
     t1 = time.time()
 
     final_res = {top:[] for top in patterns}
@@ -120,8 +117,7 @@ def get_catogarized_review(df):
                 doc = nlp(preprocesser.Lemmatization(sent))
                 f = matcher(doc)
                 if length(f)>0:
-                        res.add(Tuple((df.iloc[i][0],df.iloc[i][2],sent.text))
-                               )
+                        res.add(Tuple((df.iloc[i][0],df.iloc[i][2],sent.text)))
 
         final_res[topic]=List(res)[:]
     
@@ -160,10 +156,13 @@ def get_Sentiment(df):
 
 
 
-sid = SentimentIntensityAnalyzer()
 z= []
 
 def getCompundScore(text):
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+    sid = SentimentIntensityAnalyzer()
+
     return sid.polarity_scores(text)['compound']
 def get_catogarized_topic_sentiment_review(final_res):
     catogarized_final_res = {topic:{'pos':[],'neg':[]} for topic in final_res}
