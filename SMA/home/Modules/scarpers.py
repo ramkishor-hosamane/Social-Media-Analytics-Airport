@@ -2,11 +2,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
-import io
-import bs4
-import requests
-import time, operator, tweepy
-import re
+
 
 
 Positions_slot = {"pos1":[0,0,False],
@@ -154,7 +150,7 @@ def facebookScrap(path,a=20):
 class TwitterScrapper:
 
     def Scrape_Twitter(self, Consumer_Key, Consumer_Secret, Access_Token, Access_Token_Secret, tag, limit=20, lang='en',path="/"):
-
+        import operator,tweepy,re
         print("Starting Scrapping Twitter")
 
         consumerKey = Consumer_Key
@@ -206,6 +202,9 @@ class TwitterScrapper:
 
 
 def tripAdvisorScrap(path,a=20):
+    import io
+    import bs4
+    import requests
     a = int(a)
     if(a==0):
         return 0

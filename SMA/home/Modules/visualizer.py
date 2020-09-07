@@ -1,17 +1,13 @@
 import matplotlib.pyplot as plt
 import io,base64
-import requests,urllib
-import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
-import pandas as pd
-from nltk.corpus import stopwords
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
-
-
-
+import urllib
 
 
 def word_cloud(df,path):
+    from nltk.corpus import stopwords
+    from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+    #return     
+    from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
 
     count_vectorizer = CountVectorizer(ngram_range=(1, 2),  
                                     stop_words=stopwords.words('english') + ['airport'], 
@@ -111,7 +107,7 @@ def pie_topic(final_res,path):
     return url
 
 def bar_categarized_topic_pos_neg(catogarized_final_res,path):
-
+    import numpy as np
     pos = tuple([len(catogarized_final_res[topic]['pos']) for topic in catogarized_final_res])
     neg = tuple([len(catogarized_final_res[topic]['neg']) for topic in catogarized_final_res])
     n_groups = len(catogarized_final_res)
