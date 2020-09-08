@@ -59,7 +59,7 @@ function check_progress(){
             // Simulate an HTTP redirect:
             //window.location.replace("http://127");    
             
-            }, 500);       
+            }, 1000);       
           }
     }
     

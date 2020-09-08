@@ -275,6 +275,7 @@ def bg_work(request):
         return other_airport_comparison_plots
 
     def get_food_shop_outlet_plot(path):
+        global perc
         res = ""
         try:
             sub_df = pd.read_csv(path+"/Scrapped Reviews/subway.csv")
@@ -284,6 +285,7 @@ def bg_work(request):
             ccd_df = pd.read_csv(path+"/Scrapped Reviews/cafe coffee day.csv")
             ccd_df = preprocesser.preprocess(ccd_df)
             ccd_df["Sentiment"] = analyser.get_Sentiment(ccd_df)
+            perc+=10
 
             tif_df = pd.read_csv(path+"/Scrapped Reviews/tiffin center.csv")
             tif_df = preprocesser.preprocess(tif_df)
@@ -344,6 +346,8 @@ def bg_work(request):
 
 
         bar_categarized_topic_pos_neg = visualizer.bar_categarized_topic_pos_neg(catogarized_final_res,path)
+        perc+=10
+
         pie_pos_neg = visualizer.pie_pos_neg(df,path)
         pie_topic = visualizer.pie_topic(final_res,path)
 
@@ -372,6 +376,7 @@ def bg_work(request):
         res_maintainance_df = pd.DataFrame(res_maintainance_df)
         res_infrastructures_df = pd.DataFrame(res_infrastructures_df)
         res_security_df = pd.DataFrame(res_security_df)
+
         writer = pd.ExcelWriter(path+"/Reports/topic_reviews.xlsx", engine='xlsxwriter')
         res_food_df.to_excel(writer,sheet_name='Food_Shopping', index = False)
         res_maintainance_df.to_excel(writer,sheet_name='Maintenance_Clean', index = False)  
@@ -393,7 +398,6 @@ def bg_work(request):
         
         food_shop_outlets = get_food_shop_outlet_plot(path)
         print("Food outlet over")
-        perc+=20
 
         unwanted = set(['static', 'Modules', 'migrations', 'templates', 'Not_needed', '__pycache__', 'urls.py', 'samp.py', 'models.py', 'admin.py','tests.py','Spell.csv','__init__.py', 'views.py', 'apps.py'])
         valid_paths = set(os.listdir(os.getcwd()+"/home/"))
