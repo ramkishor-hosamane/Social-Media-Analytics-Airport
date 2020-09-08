@@ -2,7 +2,6 @@
 
 <script>
     document.getElementById("analy").style.backgroundColor = "#5C99C7";
-    document.getElementById("results_container").style.minHeight ="210vh" ;
 
 </script>
 
@@ -43,8 +42,6 @@
     <div class="card-body">
 
         <div class="card-body" style="width: 1150px;">
-            <form id="analyse" method="POST">
-                {% csrf_token %}
                 <table cellpadding="5px" cellspacing="15px" style="width: 60%;">
 
                     <tr>
@@ -76,9 +73,8 @@
                 </table>
                 <br>
 
-                <button class="btn btn-primary mybutton mybutton" id="btnsub" type="submit" style="width: 400px ">Analyse</button>
+                <button class="btn btn-primary mybutton mybutton" id="btnsub" onclick="analyseHandler();" style="width: 400px ">Analyse</button>
 
-            </form>
 
             <form action="{% url 'analysis' %}" method="POST">
                 {% csrf_token %}
@@ -92,7 +88,17 @@
     </div>
 </div>
 
-{% include "home/loading_animation.html" %} {% if is_result and pos_reviews.all %}
+{% include "home/loading_animation.html" %} 
+
+<div id="progress_shower" style="display: none;">
+    {% include "home/progress.html" %} 
+</div>
+
+
+
+{% if is_result and pos_reviews.all %}
+
+
 
 
 
@@ -304,8 +310,8 @@
 </div>
 
 
-
 <script src="{% static 'home/assets/js/AnalysisPoster.js' %}"></script>
+
 <script src="{% static 'home/assets/js/Animations.js' %}"></script>
 
 {% endblock %}

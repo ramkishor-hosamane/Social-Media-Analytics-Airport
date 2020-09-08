@@ -3,7 +3,11 @@ from django.http import HttpResponse,JsonResponse
 from .Modules import visualizer
 import os
 import pandas as pd
+from .Modules import analyser
+from .Modules import preprocesser
+from django.views.decorators.csrf import csrf_exempt
 
+perc = 0
 scrapping_results_context = {'path':'',"scrolls":'',
                                 'is_result':False,
 
@@ -244,11 +248,14 @@ def scrapping(request):
         scrapping_results_context['is_msg'] = False
         return render(request,'home/scrapping.html',scrapping_results_context)
 
-def analysis(request):
-    global analysis_results_context
-    from .Modules import analyser
-    from .Modules import preprocesser
+
+@csrf_exempt
+def bg_work(request):
+    global analysis_results_context,perc
+    import threading
     import shutil
+
+
     def get_other_airport_comparison_plots(path,catogarized_final_res):
         other_airport_comparison_plots = {}
         blr_pos = [len(catogarized_final_res[topic]['pos']) for topic in catogarized_final_res]
@@ -303,13 +310,143 @@ def analysis(request):
         return topic_wise,url_wise
 
 
+    def analyse_reviews(path):
 
-    #if request.is_ajax():
-        #print("jesson",request.POST)
-        #return JsonResponse({'msg':'success'})
-    
-    #print("Hurray",request.is_ajax())  
-    #print(request.POST)
+        global analysis_results_context,perc
+        df = pd.read_csv(path+'/Scrapped Reviews/gmap_reviews.csv')
+        df = preprocesser.preprocess(df)
+        perc+=5
+
+        word_cloud = visualizer.word_cloud(df,path)
+        star_rating = visualizer.star_rating(df,path)
+        perc+=5
+
+        df['sentiment'] = analyser.get_Sentiment(df)
+        print("ASDas")
+
+        perc+=5
+        pos_reviews = df[df['sentiment']=='pos']['Review'].values
+        neg_reviews = df[df['sentiment']=='neg']['Review'].values
+        pos_reviews_url = df[df['sentiment']=='pos']['Reviewer Profile URL'].values
+        neg_reviews_url = df[df['sentiment']=='neg']['Reviewer Profile URL'].values
+        print("ASDF")
+        perc+=5
+
+        final_res = analyser.get_catogarized_review(df)
+        print("get_catogarized_review over")
+
+        topic_wise,url_wise = get_topic_res(final_res)
+        print("get_topic_res over")
+
+        catogarized_final_res = analyser.get_catogarized_topic_sentiment_review(final_res)
+        print("get_catogarized_topic_sentiment_review over")
+        perc+=10
+
+
+        bar_categarized_topic_pos_neg = visualizer.bar_categarized_topic_pos_neg(catogarized_final_res,path)
+        pie_pos_neg = visualizer.pie_pos_neg(df,path)
+        pie_topic = visualizer.pie_topic(final_res,path)
+
+        perc+=10
+
+
+        res_pos_df = {"Reviewer URL":pos_reviews_url,"Review":pos_reviews}
+        res_neg_df = {"Reviewer URL":neg_reviews_url,"Review":neg_reviews}
+        res_pos_df = pd.DataFrame(res_pos_df)
+        res_neg_df = pd.DataFrame(res_neg_df)
+        writer = pd.ExcelWriter(path+"/Reports/pos_neg_reviews.xlsx", engine='xlsxwriter')
+        res_pos_df.to_excel(writer,sheet_name='positive_reviews', index = False)
+        res_neg_df.to_excel(writer,sheet_name='negative_reviews', index = False)  
+        writer.save()          
+
+        perc+=10
+
+
+
+
+        res_food_df = {"Reviewer URL":url_wise['Food/Shopping'],"Review":topic_wise['Food/Shopping']}
+        res_maintainance_df = {"Reviewer URL":url_wise['Maintenance/Clean'],"Review":topic_wise['Maintenance/Clean']}
+        res_infrastructures_df = {"Reviewer URL":url_wise['Infrastructures'],"Review":topic_wise['Infrastructures']}
+        res_security_df = {"Reviewer URL":url_wise['Security/Staff'],"Review":topic_wise['Security/Staff']}
+        res_food_df = pd.DataFrame(res_food_df)
+        res_maintainance_df = pd.DataFrame(res_maintainance_df)
+        res_infrastructures_df = pd.DataFrame(res_infrastructures_df)
+        res_security_df = pd.DataFrame(res_security_df)
+        writer = pd.ExcelWriter(path+"/Reports/topic_reviews.xlsx", engine='xlsxwriter')
+        res_food_df.to_excel(writer,sheet_name='Food_Shopping', index = False)
+        res_maintainance_df.to_excel(writer,sheet_name='Maintenance_Clean', index = False)  
+        res_infrastructures_df.to_excel(writer,sheet_name='Infrastructures', index = False)
+        res_security_df.to_excel(writer,sheet_name='Security_Staff', index = False)
+        writer.save()
+        perc+=10
+        
+        shutil.copy(path+"/Reports/topic_reviews.xlsx","home/static/home/Outputs/topic_reviews.xlsx")          
+        shutil.copy(path+"/Reports/pos_neg_reviews.xlsx","home/static/home/Outputs/pos_neg_reviews.xlsx")          
+
+        print("Done excel sheet over")
+
+
+        ''' Analysis of other airport results '''
+        #s = visualizer.plot_comparision('',[140,170,250,300],[267,130,353,235],[235,500,334,356],[324,134,334,234])
+        other_airport_comparison_plots = get_other_airport_comparison_plots(path,catogarized_final_res)
+        perc+=5
+        
+        food_shop_outlets = get_food_shop_outlet_plot(path)
+        print("Food outlet over")
+        perc+=20
+
+        unwanted = set(['static', 'Modules', 'migrations', 'templates', 'Not_needed', '__pycache__', 'urls.py', 'samp.py', 'models.py', 'admin.py','tests.py','Spell.csv','__init__.py', 'views.py', 'apps.py'])
+        valid_paths = set(os.listdir(os.getcwd()+"/home/"))
+        valid_paths = valid_paths.difference(unwanted)
+        perc+=5
+
+        analysis_results_context = {
+                                                
+                                    'is_msg':True,
+                                    'msg_type':'Success',
+                                    'msg':'Analysis Completed',
+                                    'is_result' :True,
+                                    'path':path.split('/')[1],
+                                    'pos_reviews':pos_reviews,
+                                    "neg_reviews":neg_reviews,
+                                    'topic_wise':topic_wise,
+                                    'pos_reviews_url':pos_reviews_url,
+                                    'neg_reviews_url':neg_reviews_url,
+                                    'url_wise':url_wise,
+                                    'word_cloud':word_cloud,
+                                    'star_rating':star_rating,
+                                    'pie_pos_neg':pie_pos_neg,
+                                    'pie_topic':pie_topic,
+                                    'bar_categarized_topic_pos_neg':bar_categarized_topic_pos_neg,
+                                    'other_airport_comparison_plots':other_airport_comparison_plots,
+                                    'food_shop_outlets':food_shop_outlets,
+                                    }
+
+
+        print("All done")
+
+        analysis_results_context["valid_paths"] = valid_paths    
+        perc+=10
+
+        shutil.make_archive("home/static/home/Outputs/"+path.split('/')[1], 'zip', path)
+    if request.method == "POST":
+            path = request.POST.get('path')
+            path = 'home/'+ str(path)
+            print(path)
+            print("ASD")
+            t = threading.Thread(target=analyse_reviews,args=(path,))
+            t.start()
+
+    return JsonResponse({'status': 'Processing...', 'pro': perc})
+
+
+
+
+
+def analysis(request):
+    global analysis_results_context,perc
+
+  
     if "clear_results" in request.POST:
         analysis_results_context = {
                                     
@@ -337,105 +474,6 @@ def analysis(request):
 
         #s = visualizer.plot_comparision('',[140,170,250,300],[267,130,353,235],[235,500,334,356],[324,134,334,234])
         return render(request,'home/analysis.html',analysis_results_context)
-
-    elif request.method == "POST":
-
-        path = request.POST.get('path')
-        path = 'home/'+ str(path)
-        print(path)
-        revs = ["gmap_reviews.csv"]
-
-        
-        df = pd.read_csv(path+'/Scrapped Reviews/gmap_reviews.csv')
-        df = preprocesser.preprocess(df)
-        word_cloud = visualizer.word_cloud(df,path)
-        star_rating = visualizer.star_rating(df,path)
-        df['sentiment'] = analyser.get_Sentiment(df)
-        pos_reviews = df[df['sentiment']=='pos']['Review'].values
-        neg_reviews = df[df['sentiment']=='neg']['Review'].values
-        pos_reviews_url = df[df['sentiment']=='pos']['Reviewer Profile URL'].values
-        neg_reviews_url = df[df['sentiment']=='neg']['Reviewer Profile URL'].values
-
-        final_res = analyser.get_catogarized_review(df)
-        topic_wise,url_wise = get_topic_res(final_res)
-        catogarized_final_res = analyser.get_catogarized_topic_sentiment_review(final_res)
-        bar_categarized_topic_pos_neg = visualizer.bar_categarized_topic_pos_neg(catogarized_final_res,path)
-        pie_pos_neg = visualizer.pie_pos_neg(df,path)
-        pie_topic = visualizer.pie_topic(final_res,path)
-
-
-
-        res_pos_df = {"Reviewer URL":pos_reviews_url,"Review":pos_reviews}
-        res_neg_df = {"Reviewer URL":neg_reviews_url,"Review":neg_reviews}
-        res_pos_df = pd.DataFrame(res_pos_df)
-        res_neg_df = pd.DataFrame(res_neg_df)
-        writer = pd.ExcelWriter(path+"/Reports/pos_neg_reviews.xlsx", engine='xlsxwriter')
-        res_pos_df.to_excel(writer,sheet_name='positive_reviews', index = False)
-        res_neg_df.to_excel(writer,sheet_name='negative_reviews', index = False)  
-        writer.save()          
-
-
-
-
-
-        res_food_df = {"Reviewer URL":url_wise['Food/Shopping'],"Review":topic_wise['Food/Shopping']}
-        res_maintainance_df = {"Reviewer URL":url_wise['Maintenance/Clean'],"Review":topic_wise['Maintenance/Clean']}
-        res_infrastructures_df = {"Reviewer URL":url_wise['Infrastructures'],"Review":topic_wise['Infrastructures']}
-        res_security_df = {"Reviewer URL":url_wise['Security/Staff'],"Review":topic_wise['Security/Staff']}
-        res_food_df = pd.DataFrame(res_food_df)
-        res_maintainance_df = pd.DataFrame(res_maintainance_df)
-        res_infrastructures_df = pd.DataFrame(res_infrastructures_df)
-        res_security_df = pd.DataFrame(res_security_df)
-        writer = pd.ExcelWriter(path+"/Reports/topic_reviews.xlsx", engine='xlsxwriter')
-        res_food_df.to_excel(writer,sheet_name='Food_Shopping', index = False)
-        res_maintainance_df.to_excel(writer,sheet_name='Maintenance_Clean', index = False)  
-        res_infrastructures_df.to_excel(writer,sheet_name='Infrastructures', index = False)
-        res_security_df.to_excel(writer,sheet_name='Security_Staff', index = False)
-        writer.save()
-        
-        shutil.copy(path+"/Reports/topic_reviews.xlsx","home/static/home/Outputs/topic_reviews.xlsx")          
-        shutil.copy(path+"/Reports/pos_neg_reviews.xlsx","home/static/home/Outputs/pos_neg_reviews.xlsx")          
-
-
-
-        ''' Analysis of other airport results '''
-        #s = visualizer.plot_comparision('',[140,170,250,300],[267,130,353,235],[235,500,334,356],[324,134,334,234])
-        other_airport_comparison_plots = get_other_airport_comparison_plots(path,catogarized_final_res)
-        
-        food_shop_outlets = get_food_shop_outlet_plot(path)
-        unwanted = set(['static', 'Modules', 'migrations', 'templates', 'Not_needed', '__pycache__', 'urls.py', 'samp.py', 'models.py', 'admin.py','tests.py','Spell.csv','__init__.py', 'views.py', 'apps.py'])
-        valid_paths = set(os.listdir(os.getcwd()+"/home/"))
-        valid_paths = valid_paths.difference(unwanted)
-
-        analysis_results_context = {
-                                                
-                                    'is_msg':True,
-                                    'msg_type':'Success',
-                                    'msg':'Analysis Completed',
-                                    'is_result' :True,
-                                    'path':path.split('/')[1],
-                                    'pos_reviews':pos_reviews,
-                                    "neg_reviews":neg_reviews,
-                                    'topic_wise':topic_wise,
-                                    'pos_reviews_url':pos_reviews_url,
-                                    'neg_reviews_url':neg_reviews_url,
-                                    'url_wise':url_wise,
-                                    'word_cloud':word_cloud,
-                                    'star_rating':star_rating,
-                                    'pie_pos_neg':pie_pos_neg,
-                                    'pie_topic':pie_topic,
-                                    'bar_categarized_topic_pos_neg':bar_categarized_topic_pos_neg,
-                                    'other_airport_comparison_plots':other_airport_comparison_plots,
-                                    'food_shop_outlets':food_shop_outlets,
-                                    }
-
-
-
-        analysis_results_context["valid_paths"] = valid_paths    
-        
-        shutil.make_archive("home/static/home/Outputs/"+path.split('/')[1], 'zip', path)
-
-        return render(request,'home/analysis.html',analysis_results_context)
     
     else:
         #list valid paths
@@ -445,7 +483,7 @@ def analysis(request):
 
         analysis_results_context['is_msg'] = False
         analysis_results_context["valid_paths"] = valid_paths    
-        
+        perc = 0        
         return render(request,'home/analysis.html',analysis_results_context)
 
 
