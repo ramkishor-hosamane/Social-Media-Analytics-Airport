@@ -1,9 +1,10 @@
 
-//const form = document.getElementById("analyse");
-//form.addEventListener("submit", analyseHandler);
+const form = document.getElementById("analyse");
+form.addEventListener("submit", analyseHandler);
 var bar = $('#progressbar>div')
 
 function analyseHandler() {
+
     $("div.loader").css("display", "block");
     $('#progress_shower').css("display", "block");
     $.ajax({

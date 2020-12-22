@@ -440,7 +440,6 @@ def bg_work(request):
             print("ASD")
             t = threading.Thread(target=analyse_reviews,args=(path,))
             t.start()
-
     return JsonResponse({'status': 'Processing...', 'pro': perc})
 
 

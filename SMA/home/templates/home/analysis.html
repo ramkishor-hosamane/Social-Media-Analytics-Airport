@@ -76,7 +76,7 @@
                 <button class="btn btn-primary mybutton mybutton" id="btnsub" onclick="analyseHandler();" style="width: 400px ">Analyse</button>
 
 
-            <form action="{% url 'analysis' %}" method="POST">
+            <form id="analyse" action="{% url 'analysis' %}" method="POST">
                 {% csrf_token %}
                 <button class="btn btn-primary mybutton mybutton" type="Scraping " name="clear_results" style="width: 400px ;margin-left: 55%;margin-top: -4.0rem;">Clear Results</button>
 
