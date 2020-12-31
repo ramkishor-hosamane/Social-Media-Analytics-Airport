@@ -260,18 +260,20 @@ def bg_work(request):
         other_airport_comparison_plots = {}
         blr_pos = [len(catogarized_final_res[topic]['pos']) for topic in catogarized_final_res]
         blr_neg = [len(catogarized_final_res[topic]['neg']) for topic in catogarized_final_res]
+        try:
+            for file in os.listdir(path+"/Scrapped Reviews/OtherAirports/"):
+                other_airport_name = file.split('.')[0]
+                other_df = pd.read_csv(path+"/Scrapped Reviews/OtherAirports/"+file)
+                #other_df = other_df[other_df['Time']=="a year ago"]
+                other_df = preprocesser.preprocess(other_df)
+                other_final_res = analyser.get_catogarized_review(other_df)
+                other_catogarized_final_res = analyser.get_catogarized_topic_sentiment_review(other_final_res)
+                other_pos = [len(other_catogarized_final_res[topic]['pos']) for topic in other_catogarized_final_res]
+                other_neg = [len(other_catogarized_final_res[topic]['neg']) for topic in other_catogarized_final_res]
+                other_airport_comparison_plots[other_airport_name] = visualizer.plot_comparision(path,blr_pos,blr_neg,other_pos,other_neg,"Bangalore",other_airport_name)
+        except Exception as e:
+            print(e)
 
-        for file in os.listdir(path+"/Scrapped Reviews/OtherAirports/"):
-            other_airport_name = file.split('.')[0]
-            other_df = pd.read_csv(path+"/Scrapped Reviews/OtherAirports/"+file)
-            #other_df = other_df[other_df['Time']=="a year ago"]
-            other_df = preprocesser.preprocess(other_df)
-            other_final_res = analyser.get_catogarized_review(other_df)
-            other_catogarized_final_res = analyser.get_catogarized_topic_sentiment_review(other_final_res)
-            other_pos = [len(other_catogarized_final_res[topic]['pos']) for topic in other_catogarized_final_res]
-            other_neg = [len(other_catogarized_final_res[topic]['neg']) for topic in other_catogarized_final_res]
-            other_airport_comparison_plots[other_airport_name] = visualizer.plot_comparision(path,blr_pos,blr_neg,other_pos,other_neg,"Bangalore",other_airport_name)
-        
         return other_airport_comparison_plots
 
     def get_food_shop_outlet_plot(path):
@@ -281,11 +283,12 @@ def bg_work(request):
             sub_df = pd.read_csv(path+"/Scrapped Reviews/subway.csv")
             sub_df = preprocesser.preprocess(sub_df)
             sub_df["Sentiment"] = analyser.get_Sentiment(sub_df)
+            perc+=2
 
             ccd_df = pd.read_csv(path+"/Scrapped Reviews/cafe coffee day.csv")
             ccd_df = preprocesser.preprocess(ccd_df)
             ccd_df["Sentiment"] = analyser.get_Sentiment(ccd_df)
-            perc+=10
+            perc+=4
 
             tif_df = pd.read_csv(path+"/Scrapped Reviews/tiffin center.csv")
             tif_df = preprocesser.preprocess(tif_df)
@@ -295,6 +298,7 @@ def bg_work(request):
             urb_df = preprocesser.preprocess(urb_df)
             urb_df["Sentiment"] = analyser.get_Sentiment(urb_df)
             res = visualizer.plot_shops(path,sub_df,ccd_df,tif_df,urb_df)
+            perc+=4
 
 
         except Exception as e:
@@ -398,6 +402,7 @@ def bg_work(request):
         
         food_shop_outlets = get_food_shop_outlet_plot(path)
         print("Food outlet over")
+        perc+=5
 
         unwanted = set(['static', 'Modules', 'migrations', 'templates', 'Not_needed', '__pycache__', 'urls.py', 'samp.py', 'models.py', 'admin.py','tests.py','Spell.csv','__init__.py', 'views.py', 'apps.py'])
         valid_paths = set(os.listdir(os.getcwd()+"/home/"))
@@ -430,7 +435,7 @@ def bg_work(request):
         print("All done")
 
         analysis_results_context["valid_paths"] = valid_paths    
-        perc+=10
+        perc+=5
 
         shutil.make_archive("home/static/home/Outputs/"+path.split('/')[1], 'zip', path)
     if request.method == "POST":

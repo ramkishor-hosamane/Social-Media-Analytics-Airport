@@ -1,11 +1,72 @@
 {% extends 'home/base.html' %} {% block content %} {% load static %}
 
+<link rel="stylesheet" href="{% static 'home/assets/css/Animations.css' %}">
+
 <script>
     document.getElementById("analy").style.backgroundColor = "#5C99C7";
 
 </script>
 
+<style>
+    /* Reset Select */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  outline: 0;
+  box-shadow: none;
+  border: 0 !important;
+  background: #2c3e50;
+  background-image: none;
+}
+/* Remove IE arrow */
+select::-ms-expand {
+  display: none;
+}
+/* Custom Select */
+.select {
+  position: relative;
+  display: flex;
+  width: 24.5em;
+  height: 3em;
+  line-height: 3;
+  background: #2c3e50;
+  overflow: hidden;
+  border-radius: .25em;
+}
+select {
+  flex: 1;
+  padding: 0 .5em;
+  color: #fff;
+  cursor: pointer;
+}
+/* Arrow */
+.select::after {
+  content: '\25BC';
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 1em;
+  background: #34495e;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-transition: .25s all ease;
+  -o-transition: .25s all ease;
+  transition: .25s all ease;
+}
+/* Transition */
+.select:hover::after {
+  color: #4e73df;   
+}
 
+
+
+
+
+
+
+</style>
 {% if is_msg %}
 {% if msg_type == "Success" %}
 <script>
@@ -53,13 +114,17 @@
                     </tr>
                     <tr>
                         <td> 
-                            
+                            <div class="select">
                             <!-- <input id="pth" style="width: 63%;" name="path" type="text " required>-->
-                            <select id="pth" style="width: 63%;" name="path">
+                            <select id="pth" class="selectpicker" style="width: 63%;" name="path" data-style="btn-primary">
                                 {% for path in valid_paths %}
-                                  <option value="{{ path }}"> {{path}} </option>
+                                    <option style="border: 0 !important;
+                                    background: #2c3e50;"  value="{{ path }}"> {{path}} </option>
+
                                 {% endfor %}                    
                             </select>
+
+                            </div>
                             
                         </td> 
                     </tr>
@@ -142,7 +207,7 @@
             <br>
 
             <a href=" {% static 'home/Outputs/pos_neg_reviews.xlsx' %}" download>
-           <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_pos_neg_result">Report</button></center></a>
+           <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_pos_neg_result">Download Report</button></center></a>
 
 
         </div>
@@ -213,7 +278,7 @@
 
             <a href=" {% static 'home/Outputs/topic_reviews.xlsx' %}" download>
 
-           <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_topic_result">Report</button></center></a>
+           <center> <button style="width: 35%;" class="btn btn-primary mybutton" name="report_topic_result">Download Report</button></center></a>
                 
             {% endif %}
 
